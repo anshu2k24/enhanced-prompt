@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Gemini Enhance Button", 
+  "version": "1.0",
+  "description": "Adds an Enhance button to Gemini prompt box",
+  "content_scripts": [
+    {
+      "matches": ["https://gemini.google.com/*"],  
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["activeTab"]
+}

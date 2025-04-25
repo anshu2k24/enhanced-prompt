@@ -3,6 +3,11 @@
   "name": "Gemini Enhance Button", 
   "version": "1.0",
   "description": "Adds an Enhance button to Gemini prompt box",
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "content_scripts": [
     {
       "matches": ["https://gemini.google.com/*"],  

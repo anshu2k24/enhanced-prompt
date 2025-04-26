@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,16 +6,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-// Mock data for user growth chart
-const userGrowthData = [
+// Chart config
+const chartConfig = {
+  users: { color: "#34ca8e" },
+  newUsers: { color: "#accbee" },
+  co2Saved: { color: "#6ad59d" },
+  trees: { color: "#098f5f" },
+  water: { color: "#65e0ac" },
+};
+
+// Dummy data - will be used if Firebase fails or during development
+const dummyUserGrowthData = [
   { month: 'Jan', users: 1200, newUsers: 350, co2Saved: 2400 },
   { month: 'Feb', users: 1500, newUsers: 300, co2Saved: 3000 },
   { month: 'Mar', users: 1800, newUsers: 400, co2Saved: 4500 },
@@ -31,37 +36,71 @@ const userGrowthData = [
   { month: 'Dec', users: 6700, newUsers: 800, co2Saved: 22000 },
 ];
 
-// Mock data for environmental impact
-const environmentalImpactData = [
-  { category: 'CO₂ Saved (kgs)', value: 40000 },
-  { category: 'NOₓ Saved(mg)', value: 50000 },
-  { category: 'Energy Saved(MWt)', value: 25000 },
-  { category: 'Thermal Energy(MWh)', value: 20000 },
-  { category: 'Water saved(kl)', value: 75000 },
+const dummyEnvironmentalImpactData = [
+  { category: 'CO₂ Saved (kgs)', value: 42000 },
+  { category: 'NOₓ Saved (mg)', value: 58000 },
+  { category: 'Energy Saved (MWh)', value: 32000 },
+  { category: 'Thermal Energy (MWh)', value: 24500 },
+  { category: 'Water saved (kl)', value: 78500 },
+  { category: 'Waste Reduced (kg)', value: 15600 },
 ];
 
-// Mock data for category distribution
-const categoryDistributionData = [
-  { name: 'CO₂ Emission Savings	', value: 37 },
-  { name: 'Water Saved', value: 28 },
-  { name: 'Thermal energy saved', value: 15 },
-  { name: 'Energy saved', value: 12 },
-  { name: 'NOₓ Emission Savings', value: 5 },
-  { name: 'Other Emission Redeced', value: 3 },
+const dummyCategoryDistributionData = [
+  { name: 'CO₂ Emission Savings', value: 37 },
+  { name: 'Water Conservation', value: 28 },
+  { name: 'Energy Efficiency', value: 15 },
+  { name: 'Waste Reduction', value: 12 },
+  { name: 'NOₓ Reduction', value: 5 },
+  { name: 'Other Impacts', value: 3 },
 ];
-
-// Chart config
-const chartConfig = {
-  users: { color: "#34ca8e" },
-  newUsers: { color: "#accbee" },
-  co2Saved: { color: "#6ad59d" },
-  trees: { color: "#098f5f" },
-  water: { color: "#65e0ac" },
-};
 
 const LeaderboardCharts = () => {
+  const [userGrowthData, setUserGrowthData] = useState(dummyUserGrowthData);
+  const [environmentalImpactData, setEnvironmentalImpactData] = useState(dummyEnvironmentalImpactData);
+  const [categoryDistributionData, setCategoryDistributionData] = useState(dummyCategoryDistributionData);
+  const [loading, setLoading] = useState(false); // Set to false since we're using dummy data
+  const [usingDummyData, setUsingDummyData] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Try to fetch from Firebase
+        const userGrowthSnapshot = await getDocs(collection(db, "userGrowth"));
+        const impactSnapshot = await getDocs(collection(db, "environmentalImpact"));
+        const categorySnapshot = await getDocs(collection(db, "categoryDistribution"));
+        
+        if (!userGrowthSnapshot.empty && !impactSnapshot.empty && !categorySnapshot.empty) {
+          setUserGrowthData(userGrowthSnapshot.docs.map(doc => doc.data()));
+          setEnvironmentalImpactData(impactSnapshot.docs.map(doc => doc.data()));
+          setCategoryDistributionData(categorySnapshot.docs.map(doc => doc.data()));
+          setUsingDummyData(false);
+        } else {
+          setUsingDummyData(true);
+        }
+      } catch (error) {
+        console.error("Error fetching data, using dummy data instead:", error);
+        setUsingDummyData(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p>Loading data...</p>
+      </div>
+    );
+  }
+
   return (
     <Tabs defaultValue="growth" className="mb-8">
+      {usingDummyData}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Analytics & Impact</h2>
         <TabsList>
@@ -211,7 +250,6 @@ const LeaderboardCharts = () => {
   );
 };
 
-// Custom tooltip component
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -225,7 +263,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       </div>
     );
   }
-
   return null;
 };
 

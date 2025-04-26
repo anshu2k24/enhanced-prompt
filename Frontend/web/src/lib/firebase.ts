@@ -8,6 +8,7 @@ import {
   updateProfile,
   User
 } from 'firebase/auth';
+import { getFirestore } from "firebase/firestore";
 import { toast } from "@/components/ui/use-toast";
 
 // Your web app's Firebase configuration
@@ -126,5 +127,7 @@ export const signOut = async (): Promise<void> => {
     });
   }
 };
+const db = getFirestore(app);
 
+export { db };
 export { auth };

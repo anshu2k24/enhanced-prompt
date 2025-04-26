@@ -20,21 +20,7 @@ async function getTokenSavings(originalPrompt, enhancedPrompt) {
   return data;
 }
 
-(async () => {
-  const targetDiv = await waitForElement(".ql-editor.textarea.new-input-ui");
-
-  if (!targetDiv) {
-    console.log("❌ Could not find prompt area in Gemini.");
-    return;
-  }
-
-  console.log("✅ Found prompt area in Gemini");
-
-  if (document.querySelector("#enhance-btn")) {
-    console.log("ℹ️ Button already exists");
-    return;
-  }
-
+function createEnhanceButton() {
   const button = document.createElement("button");
   button.id = "enhance-btn";
   button.innerText = "✨ Enhance";
@@ -46,17 +32,36 @@ async function getTokenSavings(originalPrompt, enhancedPrompt) {
   button.style.color = "white";
   button.style.cursor = "pointer";
   button.style.fontSize = "14px";
+  return button;
+}
 
-  targetDiv.parentElement.appendChild(button);
+async function initializeForPlatform(platformConfig) {
+  const targetDiv = await waitForElement(platformConfig.selector);
+
+  if (!targetDiv) {
+    console.log(`❌ Could not find prompt area in ${platformConfig.name}`);
+    return;
+  }
+
+  console.log(`✅ Found prompt area in ${platformConfig.name}`);
+
+  if (document.querySelector("#enhance-btn")) {
+    console.log("ℹ️ Button already exists");
+    return;
+  }
+
+  const button = createEnhanceButton();
+  platformConfig.insertButton(button, targetDiv);
 
   button.addEventListener("click", async () => {
     console.log("🟢 Enhance button clicked");
-    const prompt = targetDiv.innerText;
-    console.log(prompt);
+    const prompt = platformConfig.getPrompt(targetDiv);
+    
     if (!prompt) {
       alert("Please enter a prompt to enhance.");
       return;
     }
+    
     button.innerText = "Enhancing...";
     button.disabled = true;
 
@@ -76,15 +81,10 @@ async function getTokenSavings(originalPrompt, enhancedPrompt) {
       const data = await response.json();
       const enhancedPrompt = data.enhancedPrompt;
 
-      targetDiv.innerText = enhancedPrompt;
+      platformConfig.setPrompt(targetDiv, enhancedPrompt);
 
       try {
-        const originalP = prompt;
-        const enhancedP = enhancedPrompt;
-        // const originalP = "what a drity world this is-> my g algebra can u tell the basics of algebra pleaseeeeee";
-        // const enhancedP = "Dirty world. Teacher bad at algebra. Explain algebra basics.";
-        const savingsData = await getTokenSavings(originalP, enhancedP);
-
+        const savingsData = await getTokenSavings(prompt, enhancedPrompt);
         alert(`✨ Enhancement Complete!
         \n- Tokens Saved: ${
           savingsData.savedTokens
@@ -104,4 +104,66 @@ async function getTokenSavings(originalPrompt, enhancedPrompt) {
       button.disabled = false;
     }
   });
-})();
+}
+
+// Platform-specific configurations
+const platformConfigs = [
+  {
+    name: "Gemini",
+    selector: ".ql-editor.textarea.new-input-ui",
+    getPrompt: (el) => el.innerText,
+    setPrompt: (el, prompt) => { el.innerText = prompt; },
+    insertButton: (button, target) => target.parentElement.appendChild(button)
+  },
+  {
+    name: "Lovable",
+    selector: "#chatinput",
+    getPrompt: (el) => el.value,
+    setPrompt: (el, prompt) => { el.value = prompt; },
+    insertButton: (button, target) => target.parentElement.appendChild(button)
+  },
+  {
+    name: "Chatgpt",
+    selector: "#text-prompt",
+    getPrompt: (el) => el.value,
+    setPrompt: (el, prompt) => { el.value = prompt; },
+    insertButton: (button, target) => target.parentElement.appendChild(button)
+  },
+  {
+    name: "Claude",
+    selector: ".ProseMirror",
+    getPrompt: (el) => el.innerText,
+    setPrompt: (el, prompt) => { el.innerText = prompt; },
+    insertButton: (button, target) => {
+      const container = target.closest(".flex.flex-col.w-full")?.parentElement;
+      if (container) container.appendChild(button);
+    }
+  },
+  {
+    name: "Perplexity",
+    selector: ".textarea-wrap textarea",
+    getPrompt: (el) => el.value,
+    setPrompt: (el, prompt) => { el.value = prompt; },
+    insertButton: (button, target) => {
+      const container = target.closest(".textarea-wrap");
+      if (container) container.appendChild(button);
+    }
+  },
+  {
+    name: "Deepseek",
+    selector: ".b13855df",
+    getPrompt: (el) => el.value,
+    setPrompt: (el, prompt) => { el.value = prompt; },
+    insertButton: (button, target) => {
+      const container = target.closest(".b13855df");
+      if (container) container.appendChild(button);
+    }
+  }
+];
+
+// Try to initialize for all platforms
+platformConfigs.forEach(platformConfig => {
+  initializeForPlatform(platformConfig).catch(err => {
+    console.error(`Error initializing for ${platformConfig.name}:`, err);
+  });
+});

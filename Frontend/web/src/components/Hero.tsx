@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
 import img1 from './img3.png';
 
 const Hero = () => {
@@ -15,6 +16,7 @@ const Hero = () => {
               Reducing carbon footprints one prompt at a time. Our mission is to make AI more environmentally friendly without sacrificing performance.
             </p>
           </div>
+           
           
           <div className="flex-1 flex justify-center md:justify-end animate-slide-in" style={{ animationDelay: '0.4s' }}>
             <div className="relative w-full max-w-[600px] aspect-square md:aspect-[4/3] h-[600px]">

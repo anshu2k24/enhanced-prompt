@@ -56,6 +56,9 @@ const Navbar = () => {
               <Award className="h-4 w-4 mr-1" />
               Leaderboard
             </Link>
+            <Link to="/Learn More" className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
+              Learn More
+            </Link>
             <Link to="/ContactUs" className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
               Contact Us
             </Link>

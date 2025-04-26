@@ -1,11 +1,15 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { UserRound, Award } from 'lucide-react';
+import { UserRound, Award, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { auth } from '../lib/firebase';
+import { signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,10 +20,19 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
@@ -36,28 +49,46 @@ const Navbar = () => {
           
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/" className="text-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
+            <Link to="/" className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
               Home
             </Link>
-            {/* <button 
-              onClick={() => scrollToSection('about')} 
-              className="text-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2"
-            >
-              About
-            </button> */}
-            <Link to="/leaderboard" className="text-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2 flex items-center">
+            <Link to="/leaderboard" className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2 flex items-center">
               <Award className="h-4 w-4 mr-1" />
               Leaderboard
             </Link>
-            <Link to="/ContactUs" className="text-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
+            <Link to="/ContactUs" className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
               Contact Us
             </Link>
-            <Link to="/user" className="text-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
-              User Page
-            </Link>
-            <Button variant="ghost" size="icon" className="glow-effect">
-              <UserRound className="h-6" />
-            </Button>
+            
+            {currentUser ? (
+              <>
+                <Link to="/user" className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
+                  My Profile
+                </Link>
+                <Button 
+                  onClick={handleLogout}
+                  variant="ghost" 
+                  className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2 flex items-center"
+                >
+                  <LogOut className="h-4 w-4 mr-1" />
+                  Logout
+                </Button>
+                <div className="flex items-center gap-2">
+                  <img 
+                    src={currentUser.photoURL || "https://via.placeholder.com/150"} 
+                    alt="Profile" 
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className="text-sm font-medium">
+                    {currentUser.displayName || 'User'}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <Link to="/logsign" className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 glow-effect px-3 py-2">
+                Login
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}

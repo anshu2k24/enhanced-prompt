@@ -1,8 +1,6 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Avatar1 from "@/components/ui/avatar1.jpg"
 import {
   Card,
   CardContent,
@@ -14,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Zap, Droplet, Trash2, Share2, Download, QrCode, FireExtinguisher, Timer } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { auth } from '../lib/firebase';
+import { useNavigate } from 'react-router-dom';
 
 // Mock data for the chart
 const mockData = [
@@ -27,6 +27,23 @@ const mockData = [
 
 const UserPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (!currentUser) {
+        navigate('/logsign');
+      } else {
+        setUser(currentUser);
+      }
+    });
+    return unsubscribe;
+  }, [navigate]);
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,14 +53,16 @@ const UserPage = () => {
         <div className="mb-12 text-center">
           <div className="relative w-32 h-32 mx-auto mb-4">
             <img
-              src={Avatar1}
+              src={user.photoURL || "https://via.placeholder.com/150"}
               alt="Profile"
-              className="rounded-full border-4 border-eco-400/30"
+              className="rounded-full border-4 border-eco-400/30 w-full h-full object-cover"
             />
           </div>
-          <h1 className="text-2xl font-bold gradient-text mb-2">Sunita</h1>
+          <h1 className="text-2xl font-bold gradient-text mb-2">
+            {user.displayName || 'User'}
+          </h1>
+          <p className="text-muted-foreground">{user.email}</p>
         </div>
-
         {/* Impact Summary Section */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
           <Card className="bg-card/50 backdrop-blur">

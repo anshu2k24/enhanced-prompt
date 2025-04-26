@@ -9,6 +9,7 @@ import UserPage from "./pages/UserPage";
 import NotFound from "./pages/NotFound";
 import ContactUs from "./pages/ContactUs";
 import AuthPage from "./pages/Authpage";
+import LearnMore from "./pages/LearnMore";
 import { auth } from "./lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useState, useEffect } from "react";
@@ -40,6 +41,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/Learn More" element={<LearnMore />} />
             <Route path="/ContactUs" element={<ContactUs />} />
             <Route
               path="/user"

@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
 
 const CallToAction2 = () => {
+  const HandleNavigation = () => {
+    // This will trigger the navigation
+    window.open('/Learn More')
+  };
   return (
     <section className="py-12 md:py-24">
       <div className="container px-4 md:px-6">
@@ -21,6 +25,7 @@ const CallToAction2 = () => {
             
             <div className="flex-shrink-0">
               <Button 
+              onClick={HandleNavigation}
                 className="bg-gradient-to-r from-eco-500 to-eco-600 hover:from-eco-600 hover:to-eco-700 animate-glow text-lg px-8 py-6 h-auto font-semibold"
                 size="lg"
               >

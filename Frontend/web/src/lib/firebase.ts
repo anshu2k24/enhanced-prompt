@@ -14,13 +14,14 @@ import { toast } from "@/components/ui/use-toast";
 // Your web app's Firebase configuration
 // Replace these with your actual Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyCR48ISbG6IsV8nlNuuIPxa3QXWAZiCT1M",
-  authDomain: "ecoai-29a51.firebaseapp.com",
-  projectId: "ecoai-29a51",
-  storageBucket: "ecoai-29a51.firebasestorage.app",
-  messagingSenderId: "1026212539639",
-  appId: "1:1026212539639:web:241344c24c35242626b7f2",
-  measurementId: "G-CXJGGKJ4Z3"
+  //add your firebase cred
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: ""
 };
 
 // Initialize Firebase

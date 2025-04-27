@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import img3 from './img2.png'
 
 const Vision = () => {
+  const HandleNavigation = () => {
+    // This will trigger the navigation
+    window.open('/Learn More')
+  };
   return (
     <section id="vision" className="py-12 md:py-24 bg-secondary/30">
       <div className="container px-4 md:px-6">
@@ -43,6 +47,7 @@ const Vision = () => {
             <div className="pt-4 flex justify-center items-center  animate-slide-in" style={{ animationDelay: '0.8s' }}>
            
                <Button 
+               onClick={HandleNavigation}
                 className="  bg-gradient-to-r from-eco-500 to-eco-600 hover:from-eco-600 hover:to-eco-700 animate-glow text-lg px-8 py-6 h-auto"
               >
                 Try Now
